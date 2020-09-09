@@ -1,5 +1,5 @@
 ---
 deployment:
   tasks:
-    - export DEPLOYPATH=/home/user/public_html/
+    - export DEPLOYPATH=/home/a200807z/public_html/
     - /bin/cp -R pico $DEPLOYPATH
