@@ -1,10 +1,10 @@
 ---
 Title: How to setup pico Magazine theme
 Description: Installing and configuring pico magazine theme
-Thumbnail: "/assets/img/venv_header.png"
+Thumbnail: "/assets/img/Pico.png"
 Date: 31 August 2020
 Category: Pico
-Featured: "/assets/img/venv_header.png"
+Featured: "/assets/img/Pico.png"
 Template: single
 Purpose: pico_categories_page
 ---

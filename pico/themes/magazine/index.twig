@@ -6,7 +6,7 @@
 	<head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>{{ site_title }} &mdash; {{ meta.description|striptags }}</title>
+	<title>{{ site_title }} - {{ meta.description|striptags }}</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta name="description" content="{{ meta.description|striptags }}" />
 	<meta name="author" content="{{ config.author }}" />
@@ -67,7 +67,7 @@
 				{% if config.authorimage %}
 				<img src="{{ config.authorimage }}" alt="{{ config.author }}" class="img-responsive">
 				{% else %}
-				<img src="/assets/img/Me-narrow.jpg" alt="{{ config.author }}" class="img-responsive">
+				<img src="{{ config.authorimagealt }}" alt="{{ config.author }}" class="img-responsive">
 				{% endif %}
 			</figure>
 			<h3 class="heading">About Me</h3>
