@@ -1,10 +1,10 @@
 ---
 Title: Streaming Data from MySQL into Kafka and consuming it using Python
 Description: Building a CDC pipeline using Kafka
-Thumbnail: "/assets/img/Pico.png"
+Thumbnail: "/assets/img/Kafka_featured.png"
 Date: 22 February 2021
 Category: Guides
-Featured: "/assets/img/Pico.png"
+Featured: "/assets/img/Kafka_featured.png"
 Template: single
 Purpose: pico_categories_page
 ---
@@ -116,4 +116,38 @@ Now, we can check the registered connectors by hitting the API:
 $ curl -H "Accept:application/json" localhost:8083/connectors/
 ```
 
-## Step 5 - 
+## Step 5 - Consuming Kafka topic using Python
+By mentioning the `employees` database in the connector configuration, Kafka has created topics corresponding to all the available tables in the `employees` database.
+
+Topic representation: `<hostname>.<database>.<table_name>`
+
+Example: `localhost.employees.employees`
+
+For the purpose of this article, we will only consume one topic. Here's a sample Python code to consume `employees` table:
+
+```python
+from kafka import KafkaConsumer
+import json
+
+topic = 'localhost.employees.employees'
+bootstrap_servers = 'localhost:9092'
+consumer = KafkaConsumer(
+    topic, bootstrap_servers=bootstrap_servers, auto_offset_reset='latest')
+consumer.subscribe(topic)
+
+for msg in consumer:
+    print(msg)
+```
+Notice, we've set `auto_offset_reset` is equal to `latest`. We could set it to `earliest` to consume topic from the starting offset.
+
+Open a new terminal, and use it to run the python script we've just created and let it run exponentially. This will consume as the new message comes in to the topic and prints its output in the terminal.
+
+### Start the MySQL client
+In the new terminal window start the MySQL command line client, run the following statements:
+```sql
+use employees;
+update employees set first_name="Ankit" where emp_no=499998;
+```
+Output should look like this:
+[<img src="/assets/img/kafka_mysql_update.png" class="img-fluid"/>](/assets/img/kafka_mysql_update.png)
+
