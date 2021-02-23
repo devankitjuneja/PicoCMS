@@ -777,3 +777,8 @@ figure figcaption {
 }
 
 /*# sourceMappingURL=style.css.map */
+
+.img-fluid {
+  max-width: 100%;
+  height: auto;
+}
