@@ -11,7 +11,7 @@ Purpose: pico_categories_page
 
 ## Introduction
 Recently, I was looking for ways to build a CDC (Change Data Capture) pipeline and Kafka's name popped out and why not?
-Kafka is well researched and documentated and confluent has done a pretty good job to design the architecture of source and sink connectors to do just i was looking for.
+Kafka is well researched and documentated and confluent has done a pretty good job to design the architecture of source and sink connectors, just what I was looking for.
 
 Because of its richness in connectors, then it's all just configuration that has to go right.
 Although, you could easily find the docker compose file to setup this in minutes. However, our requirement was build something simple without having to setup a Kubernetes cluster when deploying this in production.
@@ -54,7 +54,9 @@ $ nano connect-distributed.properties
 ```
 Otherwise, navigate to your Kafka installation directory and edit `connect-distributed.properties` file located inside config directory.
 Uncomment plugin.path property
-`#plugin.path=/usr/local/share/java,/usr/local/share/kafka/plugins,/opt/connectors`
+```sh
+#plugin.path=/usr/local/share/java,/usr/local/share/kafka/plugins,/opt/connectors
+```
 Configuration will look like this:
 
 [<img src="/assets/img/plugin_path_property.png" class="img-fluid"/>](/assets/img/plugin_path_property.png)
@@ -69,14 +71,14 @@ Output should be like this:
 [<img src="/assets/img/kafka_connect_output.png" class="img-fluid"/>](/assets/img/kafka_connect_output.png)
 
 ## Step 4 - Deploying the MySQL connector
-No, we are ready to deploy the Debezium MySQL connector so that it can start monitoring the sample MySQL database(`employees`).
+Now, we are ready to deploy the Debezium MySQL connector so that it can start monitoring the sample MySQL database(`employees`).
 
 At this point, we are running Kafka services, a MySQL database server with a sample `employees` database (If you do not have a sample database, download it from this [link](https://github.com/datacharmer/test_db)).
 
 ### Checking the binlog setting
 Before the deployment of our connector, we need to make sure binlog is set to `ON`. So that Kafka connect will create the topics and start producing them as soon as we deploy the connector.
 
-There are a few methods you could verify the `binlog` setting from your MySQL command line:
+There are a few methods by which you could verify the `binlog` setting from your MySQL command line:
 
 - ```mysql 
 SELECT @@log_bin;
