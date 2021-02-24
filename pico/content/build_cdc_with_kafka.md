@@ -2,15 +2,26 @@
 Title: Streaming Data from MySQL into Kafka and consuming it using Python
 Description: Building a CDC pipeline using Kafka
 Thumbnail: "/assets/img/Kafka_featured.png"
-Date: 22 February 2021
-Category: Guides
+Date: 23 February 2021
+Category: KAFKA
 Featured: "/assets/img/Kafka_featured.png"
 Template: single
 Purpose: pico_categories_page
 ---
 
 ## Introduction
-TODO
+Recently, I was looking for ways to build a CDC (Change Data Capture) pipeline and Kafka's name popped out and why not?
+Kafka is well researched and documentated and confluent has done a pretty good job to design the architecture of source and sink connectors to do just i was looking for.
+
+Because of its richness in connectors, then it's all just configuration that has to go right.
+Although, you could easily find the docker compose file to setup this in minutes. However, our requirement was build something simple without having to setup a Kubernetes cluster when deploying this in production.
+
+Let's understand few terms first:
+- `Connector:` The high level abstraction that coordinates data streaming by managing tasks.
+- `Source:` Source connectors allows us to import data from any relational database.
+- `Sink:` Sink connectors allows us to export data from any relational database.
+
+In this article we will explore how to setup Kafka and stream MySQL events using Python.
 
 ## Prerequisites
 
@@ -61,6 +72,34 @@ Output should be like this:
 No, we are ready to deploy the Debezium MySQL connector so that it can start monitoring the sample MySQL database(`employees`).
 
 At this point, we are running Kafka services, a MySQL database server with a sample `employees` database (If you do not have a sample database, download it from this [link](https://github.com/datacharmer/test_db)).
+
+### Checking the binlog setting
+Before the deployment of our connector, we need to make sure binlog is set to `ON`. So that Kafka connect will create the topics and start producing them as soon as we deploy the connector.
+
+There are a few methods you could verify the `binlog` setting from your MySQL command line:
+
+- ```mysql 
+SELECT @@log_bin;
+```
+```mysql
++-----------+
+| @@log_bin |
++-----------+
+|         1 |
++-----------+
+1 row in set (0.02 sec)
+```
+- ```mysql
+SHOW VARIABLES LIKE 'log_bin';
+```
+```mysql
++---------------+-------+
+| Variable_name | Value |
++---------------+-------+
+| log_bin       | ON    |
++---------------+-------+
+1 row in set (0.32 sec)
+```
 
 ### Writing the MySQL connector configuration
 
@@ -140,10 +179,12 @@ for msg in consumer:
 ```
 Notice, we've set `auto_offset_reset` is equal to `latest`. We could set it to `earliest` to consume topic from the starting offset.
 
-Open a new terminal, and use it to run the python script we've just created and let it run exponentially. This will consume as the new message comes in to the topic and prints its output in the terminal.
+Open a new terminal, and use it to run the python script we've just created and let it run exponentially. This will consume as the new message comes into the topic and prints its output in the terminal.
 
-### Start the MySQL client
-In the new terminal window start the MySQL command line client, run the following statements:
+### Updating the database and viewing the update event
+We will now change one of the records in our employees table and see how the connector captures it.
+
+1. Start a MySQL command line utility if you haven't started and run the the following statment:
 ```sql
 use employees;
 update employees set first_name="Ankit" where emp_no=499998;
@@ -151,3 +192,32 @@ update employees set first_name="Ankit" where emp_no=499998;
 Output should look like this:
 [<img src="/assets/img/kafka_mysql_update.png" class="img-fluid"/>](/assets/img/kafka_mysql_update.png)
 
+2. View the updated employees table:
+[<img src="/assets/img/kafka_employees_update.png" class="img-fluid"/>](/assets/img/kafka_employees_update.png)
+
+3. Switch to the terminal running Python script to see the latest captured event.
+By changing a record in the `employees` table, MySQL connector generated a new event. You should see the generated event.
+[<img src="/assets/img/Kafka_topic_output.png" class="img-fluid"/>](/assets/img/Kafka_topic_output.png)
+
+### Writing the captured response to a JSON file (Bonus)
+We've made few changes in our Python code to write it in a JSON file as the new event comes in. We are only writing the `payload` part to compute on the keys and values of the document.
+
+```python
+from kafka import KafkaConsumer
+import json
+
+topic = 'localhost.employees.employees'
+bootstrap_servers = 'localhost:9092'
+consumer = KafkaConsumer(
+    topic, bootstrap_servers=bootstrap_servers, auto_offset_reset='latest')
+consumer.subscribe(topic)
+
+with open('data.json', 'w') as out_file:
+    for msg in consumer:
+        json_object = json.loads(msg.value.decode())
+        print(json_object['payload'])
+        json.dump(json_object['payload'], out_file)
+```
+
+## Conclusion
+Here we've built out our CDC pipeline, streaming changes from MySQL into Kafka and from Kafka to a JSON file. Streaming to a JSON file isn't always so useful, but serves well for a simple example.
