@@ -11,10 +11,10 @@ Purpose: pico_categories_page
 
 ## Introduction
 Recently, I was looking for ways to build a CDC (Change Data Capture) pipeline and Kafka's name popped out and why not?
-Kafka is well researched and documentated and confluent has done a pretty good job to design the architecture of source and sink connectors, just what I was looking for.
+Kafka is well researched and documentated streaming platform and confluent has done a pretty good job to design the architecture of source and sink connectors, just what I was looking for.
 
 Because of its richness in connectors, then it's all just configuration that has to go right.
-Although, you could easily find the docker compose file to setup this in minutes. However, our requirement was build something simple without having to setup a Kubernetes cluster when deploying this in production.
+Although, you could easily find the docker compose file to setup this in minutes. However, our requirement was to build something simple without having to setup a Kubernetes cluster when deploying this in production.
 
 Let's understand few terms first:
 - `Connector:` The high level abstraction that coordinates data streaming by managing tasks.
